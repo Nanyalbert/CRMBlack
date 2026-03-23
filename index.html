@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ÓpticaCRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e0e10;
+  --surface: #18181b;
+  --surface2: #222226;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0f0f2;
+  --text2: #9898a8;
+  --text3: #52525e;
+  --accent: #6c8fff;
+  --accent-bg: rgba(108,143,255,0.12);
+  --green: #2dd4a0;
+  --green-bg: rgba(45,212,160,0.1);
+  --amber: #f0a030;
+  --amber-bg: rgba(240,160,48,0.1);
+  --red: #f05060;
+  --red-bg: rgba(240,80,96,0.1);
+  --purple: #a07cf8;
+  --purple-bg: rgba(160,124,248,0.1);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 4px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 20px rgba(0,0,0,0.5);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body {
+  font-family: 'Geist', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  height: 54px;
+  display: flex; align-items: center; gap: 12px;
+}
+.logo { font-size: 16px; font-weight: 600; letter-spacing: -0.4px; flex: 1; }
+.logo span { color: var(--accent); }
+.sync-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--text3); flex-shrink: 0;
+  transition: background 0.3s;
+}
+.sync-dot.live { background: var(--green); box-shadow: 0 0 6px rgba(22,163,74,0.5); }
+.topbar-btn {
+  width: 36px; height: 36px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border2); background: var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+  color: var(--text2);
+}
+.topbar-btn:hover { background: var(--border); color: var(--text); }
+.topbar-btn.active { background: var(--accent-bg); border-color: rgba(26,107,255,0.3); color: var(--accent); }
+
+/* ── DAY SUMMARY ── */
+.day-summary {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 1px; background: var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.day-stat {
+  background: var(--surface); padding: 10px 14px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.day-stat-num {
+  font-family: 'Geist Mono', monospace;
+  font-size: 20px; font-weight: 500; line-height: 1;
+}
+.day-stat-label { font-size: 10px; color: var(--text3); }
+
+/* ── SEARCH ── */
+.search-wrap {
+  padding: 12px 16px 8px;
+  position: sticky; top: 54px; z-index: 40;
+  background: var(--bg);
+}
+.search-inner {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: var(--radius); padding: 0 14px; height: 42px;
+  box-shadow: var(--shadow);
+}
+.search-inner input {
+  flex: 1; border: none; background: transparent; outline: none;
+  font-size: 14px; color: var(--text); font-family: 'Geist', sans-serif;
+}
+.search-inner input::placeholder { color: var(--text3); }
+.search-icon { color: var(--text3); font-size: 15px; }
+
+/* ── VIEW TABS ── */
+.view-tabs {
+  display: flex; gap: 4px; padding: 0 16px 10px;
+}
+.view-tab {
+  padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: all 0.15s; color: var(--text2);
+  border: 1px solid transparent;
+}
+.view-tab.active {
+  background: var(--text); color: #fff; border-color: var(--text);
+}
+
+/* ── SECTION HEADERS ── */
+.section-header {
+  padding: 6px 16px 6px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--text3);
+}
+.section-count {
+  font-size: 10px; font-family: 'Geist Mono', monospace;
+  background: var(--surface2); color: var(--text3);
+  padding: 1px 7px; border-radius: 10px; border: 1px solid var(--border);
+}
+
+/* ── WORK LIST ── */
+.work-list { padding: 0 16px; display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; }
+
+/* ── WORK ITEM ── */
+.work-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 13px 14px;
+  box-shadow: var(--shadow); cursor: pointer;
+  transition: all 0.15s; position: relative; overflow: hidden;
+  animation: slideIn 0.2s ease;
+}
+@keyframes slideIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+.work-item:active { transform: scale(0.985); }
+.work-item.urgente { border-left: 3px solid var(--red); }
+.work-item.manana { border-left: 3px solid var(--amber); }
+.work-item.frio { opacity: 0.6; }
+
+.item-row1 { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.item-nombre { font-size: 15px; font-weight: 500; letter-spacing: -0.2px; }
+.urgencia-chip {
+  font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px;
+  flex-shrink: 0; white-space: nowrap;
+}
+.u-ahora { background: var(--red-bg); color: var(--red); }
+.u-hoy { background: var(--amber-bg); color: var(--amber); }
+.u-ok { background: var(--green-bg); color: var(--green); }
+.u-frio { background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
+
+.item-row2 { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+.item-sub { font-size: 12px; color: var(--text2); }
+.item-dot { color: var(--text3); font-size: 10px; }
+
+.item-row3 { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.etapa-chip {
+  font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px;
+  background: var(--surface2); color: var(--text2); border: 1px solid var(--border);
+}
+.etiqueta-chip {
+  font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px;
+  border: 1px solid;
+}
+
+/* ── QUICK ACTIONS ── */
+.quick-actions {
+  display: flex; gap: 6px; margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.qa-btn {
+  flex: 1; padding: 8px 4px; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 500; cursor: pointer;
+  border: 1px solid var(--border2); background: var(--surface2);
+  color: var(--text2); font-family: 'Geist', sans-serif;
+  transition: all 0.15s; display: flex; align-items: center;
+  justify-content: center; gap: 4px;
+}
+.qa-btn:active { transform: scale(0.97); }
+.qa-btn.wa { background: rgba(37,211,102,0.1); border-color: rgba(37,211,102,0.3); color: #16a34a; }
+.qa-btn.listo { background: var(--green-bg); border-color: rgba(22,163,74,0.25); color: var(--green); }
+.qa-btn.norsp { background: var(--amber-bg); border-color: rgba(180,83,9,0.25); color: var(--amber); }
+
+/* ── FAB ── */
+.fab {
+  position: fixed; bottom: 80px; right: 20px; z-index: 60;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-size: 26px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(108,143,255,0.35); cursor: pointer;
+  border: none; transition: all 0.2s; font-weight: 300;
+}
+.fab:active { transform: scale(0.93); }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+  background: var(--surface); border-top: 1px solid var(--border);
+  display: flex; padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+}
+.nav-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  gap: 3px; padding: 4px; cursor: pointer; border: none; background: transparent;
+  font-family: 'Geist', sans-serif; transition: all 0.15s;
+}
+.nav-btn-icon { font-size: 20px; line-height: 1; }
+.nav-btn-label { font-size: 10px; font-weight: 500; color: var(--text3); }
+.nav-btn.active .nav-btn-label { color: var(--accent); }
+.nav-btn.active .nav-btn-icon { transform: translateY(-1px); }
+
+/* ── CONTENT PADDING (bottom nav) ── */
+.content { padding-bottom: 100px; }
+
+/* ── KANBAN (view secundaria) ── */
+.kanban-wrap { overflow-x: auto; padding: 12px 16px 16px; }
+.kanban-board { display: flex; gap: 10px; min-width: max-content; }
+.k-col { width: 220px; }
+.k-col-head {
+  display: flex; align-items: center; gap: 6px; padding: 8px 10px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: var(--surface); border: 1px solid var(--border); border-bottom: none;
+}
+.k-col-dot { width: 7px; height: 7px; border-radius: 50%; }
+.k-col-title { font-size: 12px; font-weight: 600; flex: 1; }
+.k-col-count {
+  font-size: 10px; font-family: 'Geist Mono', monospace;
+  background: var(--surface2); color: var(--text3);
+  padding: 1px 6px; border-radius: 8px;
+}
+.k-col-body {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  padding: 8px; display: flex; flex-direction: column; gap: 6px;
+  min-height: 80px; max-height: calc(100vh - 280px); overflow-y: auto;
+}
+.k-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 9px 10px;
+  cursor: pointer; transition: all 0.15s; box-shadow: var(--shadow);
+}
+.k-card:active { transform: scale(0.97); }
+.k-card-name { font-size: 13px; font-weight: 500; margin-bottom: 3px; }
+.k-card-sub { font-size: 11px; color: var(--text2); }
+.k-add {
+  padding: 8px; border: 1px dashed var(--border2); border-radius: var(--radius-sm);
+  text-align: center; font-size: 12px; color: var(--text3); cursor: pointer;
+  transition: all 0.15s;
+}
+.k-add:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5); z-index: 100;
+  align-items: flex-end; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 560px; max-height: 92vh;
+  overflow-y: auto; padding: 0;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.15);
+  animation: slideUp 0.25s ease;
+}
+@keyframes slideUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+.modal-handle {
+  width: 36px; height: 4px; background: var(--border2); border-radius: 2px;
+  margin: 12px auto 16px;
+}
+.modal-content { padding: 0 20px 32px; }
+.modal-title { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 20px; }
+
+/* ── FORM ── */
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 5px; display: block; }
+.form-input, .form-select, .form-textarea {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); padding: 10px 13px; font-size: 15px;
+  color: var(--text); font-family: 'Geist', sans-serif; outline: none;
+  transition: border-color 0.15s; -webkit-appearance: none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--accent); background: var(--surface);
+}
+.form-textarea { resize: vertical; min-height: 72px; }
+.form-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+.form-select option { background: var(--surface2); color: var(--text); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 18px; border-radius: var(--radius-sm); font-size: 14px;
+  font-weight: 500; cursor: pointer; border: 1px solid var(--border2);
+  background: var(--surface2); color: var(--text2);
+  font-family: 'Geist', sans-serif; transition: all 0.15s;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: var(--accent); border-color: var(--accent); color: #fff; width: 100%;
+  justify-content: center; padding: 13px; font-size: 15px; border-radius: var(--radius);
+}
+.btn-wa {
+  background: rgba(37,211,102,0.1); border-color: rgba(37,211,102,0.3);
+  color: #16a34a; width: 100%; justify-content: center;
+  padding: 13px; font-size: 15px; border-radius: var(--radius);
+}
+
+/* ── DETAIL SECTIONS ── */
+.detail-section { margin-bottom: 22px; }
+.detail-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--text3); margin-bottom: 10px;
+}
+.detail-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 14px;
+}
+.detail-row:last-child { border-bottom: none; }
+.dk { color: var(--text2); }
+.dv { font-weight: 500; }
+
+/* ETAPA PILLS */
+.etapa-pills { display: flex; gap: 5px; flex-wrap: wrap; }
+.etapa-pill {
+  padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;
+  border: 1px solid var(--border2); background: var(--surface2); color: var(--text2);
+  cursor: pointer; transition: all 0.15s;
+}
+.etapa-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* SECUENCIA */
+.seq-item {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 11px 12px; margin-bottom: 7px;
+}
+.seq-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
+.seq-num { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+.seq-status { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+.ss-next { background: var(--accent-bg); color: var(--accent); }
+.ss-sent { background: var(--green-bg); color: var(--green); }
+.ss-pending { background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
+.ss-frio { background: var(--red-bg); color: var(--red); }
+.seq-msg { font-size: 13px; color: var(--text2); line-height: 1.55; }
+.seq-suggestion { font-size: 11px; color: var(--amber); margin-top: 5px; }
+.seq-actions { display: flex; gap: 6px; margin-top: 9px; }
+.seq-btn {
+  flex: 1; padding: 7px; border-radius: var(--radius-sm); font-size: 12px;
+  font-weight: 500; cursor: pointer; border: 1px solid; font-family: 'Geist', sans-serif;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+.seq-btn-wa { background: rgba(37,211,102,0.1); border-color: rgba(37,211,102,0.3); color: #16a34a; }
+.seq-btn-copy { background: var(--surface2); border-color: var(--border2); color: var(--text2); }
+
+/* ETIQUETAS */
+.etiquetas-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+.etiq {
+  font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px;
+  border: 1px solid; display: inline-flex; align-items: center; gap: 5px;
+}
+.etiq-rm { cursor: pointer; opacity: 0.6; font-size: 12px; }
+.etiq-add {
+  display: flex; gap: 7px; align-items: center;
+}
+.etiq-input {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); padding: 8px 11px; font-size: 14px;
+  color: var(--text); font-family: 'Geist', sans-serif; outline: none;
+}
+.etiq-input:focus { border-color: var(--accent); }
+
+/* HISTORY */
+.history-item { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.history-item:last-child { border-bottom: none; }
+.h-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+.h-text { font-size: 13px; color: var(--text2); }
+.h-time { font-size: 11px; color: var(--text3); font-family: 'Geist Mono', monospace; margin-top: 2px; }
+
+/* LOCK BANNER */
+.lock-banner {
+  background: var(--green-bg); border: 1px solid rgba(22,163,74,0.2);
+  border-radius: var(--radius-sm); padding: 10px 13px; font-size: 13px;
+  color: var(--green); margin-bottom: 13px; line-height: 1.5;
+}
+
+/* EMPTY */
+.empty { text-align: center; padding: 40px 20px; color: var(--text3); }
+.empty-icon { font-size: 36px; margin-bottom: 10px; }
+.empty-text { font-size: 14px; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+  background: #e8e8ec; color: #0e0e10; padding: 10px 18px; border-radius: 20px;
+  font-size: 13px; font-weight: 500; z-index: 200; white-space: nowrap;
+  box-shadow: var(--shadow-md); animation: toastIn 0.2s ease;
+}
+@keyframes toastIn { from { opacity:0; transform:translateX(-50%) translateY(8px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+
+/* RESUMEN SEMANAL */
+.resumen-wrap { padding: 12px 16px; }
+.resumen-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px; margin-bottom: 10px;
+  box-shadow: var(--shadow);
+}
+.resumen-num { font-size: 32px; font-weight: 600; font-family: 'Geist Mono', monospace; letter-spacing: -1px; }
+.resumen-label { font-size: 13px; color: var(--text2); margin-top: 2px; }
+.resumen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* RESPONSIVE */
+@media (min-width: 560px) {
+  .modal { border-radius: 20px; margin: auto; max-height: 80vh; }
+  .modal-overlay { align-items: center; }
+  .day-summary { grid-template-columns: repeat(4, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">Óptica<span>CRM</span></div>
+  <div class="sync-dot" id="syncDot" title="Sin conexión a Supabase"></div>
+  <button class="topbar-btn" onclick="openSearch()" title="Buscar">🔍</button>
+  <button class="topbar-btn" onclick="openConfig()" title="Configuración">⚙️</button>
+</div>
+
+<!-- DAY SUMMARY -->
+<div class="day-summary">
+  <div class="day-stat">
+    <div class="day-stat-num" id="dsContactar" style="color:var(--red)">0</div>
+    <div class="day-stat-label">contactar hoy</div>
+  </div>
+  <div class="day-stat">
+    <div class="day-stat-num" id="dsRespondieron" style="color:var(--green)">0</div>
+    <div class="day-stat-label">respondieron</div>
+  </div>
+  <div class="day-stat">
+    <div class="day-stat-num" id="dsNuevos" style="color:var(--accent)">0</div>
+    <div class="day-stat-label">nuevos hoy</div>
+  </div>
+  <div class="day-stat">
+    <div class="day-stat-num" id="dsTotal" style="color:var(--text2)">0</div>
+    <div class="day-stat-label">total leads</div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content" id="mainContent">
+  <!-- Renderizado dinámico -->
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="openAddModal()" title="Nuevo cliente">+</button>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-btn active" id="nav-hoy" onclick="setView('hoy',this)">
+    <div class="nav-btn-icon">📋</div>
+    <div class="nav-btn-label">Hoy</div>
+  </button>
+  <button class="nav-btn" id="nav-todos" onclick="setView('todos',this)">
+    <div class="nav-btn-icon">👥</div>
+    <div class="nav-btn-label">Todos</div>
+  </button>
+  <button class="nav-btn" id="nav-tablero" onclick="setView('tablero',this)">
+    <div class="nav-btn-icon">⊞</div>
+    <div class="nav-btn-label">Tablero</div>
+  </button>
+  <button class="nav-btn" id="nav-resumen" onclick="setView('resumen',this)">
+    <div class="nav-btn-icon">📊</div>
+    <div class="nav-btn-label">Resumen</div>
+  </button>
+</div>
+
+<!-- MODAL: DETALLE CLIENTE -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-content">
+      <div class="modal-title" id="d_nombre">Cliente</div>
+
+      <!-- Etapa -->
+      <div class="detail-section">
+        <div class="detail-label">Etapa</div>
+        <div class="etapa-pills">
+          <div class="etapa-pill" id="ep-atencion" onclick="moverEtapa('atencion')">Atención</div>
+          <div class="etapa-pill" id="ep-atraccion" onclick="moverEtapa('atraccion')">Atracción</div>
+          <div class="etapa-pill" id="ep-averiguacion" onclick="moverEtapa('averiguacion')">Averiguación</div>
+          <div class="etapa-pill" id="ep-accion" onclick="moverEtapa('accion')">Acción</div>
+          <div class="etapa-pill" id="ep-apologia" onclick="moverEtapa('apologia')">Apología</div>
+        </div>
+      </div>
+
+      <!-- Estado contacto -->
+      <div class="detail-section">
+        <div class="detail-label">Contacto</div>
+        <div id="d_lockbanner"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn" style="flex:1;justify-content:center;background:var(--green-bg);border-color:rgba(22,163,74,0.25);color:var(--green)" onclick="registrarRespuesta()">✅ Respondió</button>
+          <button class="btn" style="flex:1;justify-content:center" onclick="registrarEnvio()">📤 Enviado</button>
+        </div>
+      </div>
+
+      <!-- Etiquetas -->
+      <div class="detail-section">
+        <div class="detail-label">Etiquetas</div>
+        <div class="etiquetas-row" id="d_etiquetas"></div>
+        <div class="etiq-add">
+          <input class="etiq-input" id="etiqInput" placeholder="Nueva etiqueta..." maxlength="24"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();agregarEtiqueta();}">
+          <button class="btn" style="padding:8px 14px;font-size:13px" onclick="agregarEtiqueta()">+</button>
+        </div>
+      </div>
+
+      <!-- Secuencia -->
+      <div class="detail-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="detail-label" style="margin-bottom:0">Mensajes</div>
+          <span id="d_seq_estado"></span>
+        </div>
+        <div id="d_secuencia"></div>
+      </div>
+
+      <!-- Info -->
+      <div class="detail-section">
+        <div class="detail-label">Información</div>
+        <div id="d_info"></div>
+      </div>
+
+      <!-- Historial -->
+      <div class="detail-section">
+        <div class="detail-label">Historial</div>
+        <div id="d_historial"></div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn" style="flex:1;justify-content:center;color:var(--red);border-color:rgba(220,38,38,0.2)" onclick="eliminarCliente()">Eliminar</button>
+        <button class="btn" style="flex:1;justify-content:center" onclick="closeModal('detailModal')">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: NUEVO CLIENTE -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-content">
+      <div class="modal-title">Nuevo cliente</div>
+      <div class="form-group">
+        <label class="form-label">Nombre *</label>
+        <input class="form-input" id="f_nombre" placeholder="María González" autocomplete="name">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">WhatsApp</label>
+          <input class="form-input" id="f_tel" placeholder="+54 9 351..." type="tel">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Instagram</label>
+          <input class="form-input" id="f_ig" placeholder="@usuario">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Fuente</label>
+          <select class="form-select" id="f_fuente">
+            <option value="whatsapp">WhatsApp</option>
+            <option value="instagram">Instagram</option>
+            <option value="local">Local físico</option>
+            <option value="formulario">Formulario web</option>
+            <option value="referido">Referido</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Etapa</label>
+          <select class="form-select" id="f_etapa">
+            <option value="atencion">Atención</option>
+            <option value="atraccion">Atracción</option>
+            <option value="averiguacion">Averiguación</option>
+            <option value="accion">Acción</option>
+            <option value="apologia">Apología</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Producto / Interés</label>
+        <input class="form-input" id="f_producto" placeholder="Lentes de sol, recetados, contacto...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Presupuesto ($)</label>
+        <input class="form-input" id="f_monto" type="number" placeholder="85000" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nota</label>
+        <textarea class="form-textarea" id="f_nota" placeholder="Observaciones..."></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="guardarCliente()" style="margin-top:4px">Guardar cliente</button>
+      <button class="btn" style="width:100%;justify-content:center;margin-top:8px" onclick="closeModal('addModal')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: BUSCAR -->
+<div class="modal-overlay" id="searchModal">
+  <div class="modal" style="border-radius:20px 20px 0 0">
+    <div class="modal-handle"></div>
+    <div class="modal-content">
+      <div class="modal-title" style="margin-bottom:12px">Buscar cliente</div>
+      <div class="search-inner" style="margin-bottom:14px;border-radius:var(--radius)">
+        <span class="search-icon">🔍</span>
+        <input id="searchInput" placeholder="Nombre, producto, etiqueta..." oninput="renderSearch()" autocomplete="off" autofocus style="font-size:15px">
+      </div>
+      <div id="searchResults"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CONFIG -->
+<div class="modal-overlay" id="configModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-content">
+      <div class="modal-title">Configuración</div>
+      <div class="form-group">
+        <label class="form-label">Supabase URL</label>
+        <input class="form-input" id="sb_url" placeholder="https://xxxx.supabase.co" oninput="guardarConfig()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Supabase Anon Key</label>
+        <input class="form-input" id="sb_key" type="password" placeholder="eyJhbGci..." oninput="guardarConfig()">
+      </div>
+      <button class="btn btn-primary" onclick="testConexion()" style="margin-bottom:8px">Probar conexión</button>
+      <div id="configResult" style="font-size:13px;color:var(--text2);text-align:center;margin-bottom:12px"></div>
+      <button class="btn" style="width:100%;justify-content:center" onclick="exportarCSV()">⬇ Exportar Excel</button>
+      <button class="btn" style="width:100%;justify-content:center;margin-top:8px" onclick="closeModal('configModal')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════
+let cfg = JSON.parse(localStorage.getItem('optica3_cfg') || '{}');
+function guardarConfig() {
+  cfg.url = document.getElementById('sb_url')?.value?.trim() || cfg.url || '';
+  cfg.key = document.getElementById('sb_key')?.value?.trim() || cfg.key || '';
+  localStorage.setItem('optica3_cfg', JSON.stringify(cfg));
+}
+function cargarConfig() {
+  if (document.getElementById('sb_url')) document.getElementById('sb_url').value = cfg.url || '';
+  if (document.getElementById('sb_key')) document.getElementById('sb_key').value = cfg.key || '';
+}
+
+// ═══════════════════════════════════════════
+// SUPABASE
+// ═══════════════════════════════════════════
+function sbH() { return {'Content-Type':'application/json','apikey':cfg.key,'Authorization':'Bearer '+cfg.key}; }
+function sbU(p) { return cfg.url+'/rest/v1/'+p; }
+async function sbQ(path, opts={}) {
+  if (!cfg.url || !cfg.key) return null;
+  try {
+    const r = await fetch(sbU(path), {headers:sbH(),...opts});
+    if (!r.ok) return null;
+    const t = r.headers.get('content-type');
+    return t?.includes('json') ? r.json() : null;
+  } catch { return null; }
+}
+
+let pollTimer = null;
+let lastPoll = null;
+let connected = false;
+
+function setSyncState(state) {
+  const dot = document.getElementById('syncDot');
+  connected = state === 'live';
+  dot.className = 'sync-dot' + (state === 'live' ? ' live' : '');
+  dot.title = state === 'live' ? 'Conectado a Supabase' : 'Sin conexión';
+}
+
+async function testConexion() {
+  const el = document.getElementById('configResult');
+  el.textContent = 'Probando...'; el.style.color = 'var(--amber)';
+  const d = await sbQ('clientes?select=id&limit=1');
+  if (d !== null) {
+    el.textContent = '✅ Conectado correctamente';
+    el.style.color = 'var(--green)';
+    setSyncState('live');
+    cargarDesdeSupabase();
+    iniciarPolling();
+  } else {
+    el.textContent = '❌ Error — revisá la URL y la key';
+    el.style.color = 'var(--red)';
+  }
+}
+
+async function cargarDesdeSupabase() {
+  const d = await sbQ('clientes?order=created_at.desc&limit=500');
+  if (!d) { setSyncState('off'); return; }
+  clientes = d.map(mapRow);
+  nextId = clientes.length + 1;
+  lastPoll = new Date().toISOString();
+  setSyncState('live');
+  render();
+}
+
+async function sincronizarNuevos() {
+  const since = lastPoll || new Date(Date.now()-60000).toISOString();
+  const d = await sbQ(`clientes?created_at=gt.${since}&order=created_at.asc`);
+  if (!d || !d.length) return;
+  lastPoll = new Date().toISOString();
+  let nuevos = 0;
+  d.forEach(row => {
+    if (!clientes.find(c=>c.id===row.id)) { clientes.unshift(mapRow(row)); nuevos++; }
+  });
+  if (nuevos) { render(); toast(`${nuevos} lead${nuevos>1?'s':''} nuevo${nuevos>1?'s':''} 🔔`); }
+}
+
+function iniciarPolling() {
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(sincronizarNuevos, 30000);
+}
+
+function mapRow(r) {
+  return {
+    id: r.id, nombre: r.nombre||'', tel: r.tel||'', ig: r.ig||'',
+    fuente: r.fuente||'whatsapp', etapa: r.etapa||'atencion',
+    prio: r.prio||'media', producto: r.producto||'', monto: Number(r.monto)||0,
+    nota: r.nota||'', etiquetas: r.etiquetas||[],
+    secuencia: r.secuencia||{paso:0,enviados:[]},
+    ultimaRespuesta: r.ultima_respuesta||null,
+    lastContact: r.last_contact||r.created_at||new Date().toISOString(),
+    created: r.created_at||new Date().toISOString(),
+  };
+}
+
+async function guardarSB(c) {
+  if (!cfg.url || !cfg.key) return;
+  const body = {
+    nombre:c.nombre, tel:c.tel, ig:c.ig, fuente:c.fuente,
+    etapa:c.etapa, prio:c.prio, producto:c.producto, monto:c.monto,
+    nota:c.nota, etiquetas:c.etiquetas, secuencia:c.secuencia,
+    ultima_respuesta:c.ultimaRespuesta, last_contact:c.lastContact,
+  };
+  const isUUID = typeof c.id==='string' && c.id.length>20;
+  if (isUUID) {
+    await sbQ(`clientes?id=eq.${c.id}`, {method:'PATCH', body:JSON.stringify(body)});
+  } else {
+    const r = await fetch(sbU('clientes'), {
+      method:'POST', headers:{...sbH(),'Prefer':'return=representation'}, body:JSON.stringify(body)
+    });
+    if (r.ok) { const d=await r.json(); if(d[0]) c.id=d[0].id; }
+  }
+}
+
+async function eliminarSB(id) {
+  if (!cfg.url || !cfg.key) return;
+  await sbQ(`clientes?id=eq.${id}`, {method:'DELETE'});
+}
+
+// ═══════════════════════════════════════════
+// DATOS
+// ═══════════════════════════════════════════
+function dAgo(d) { const dt=new Date(); dt.setDate(dt.getDate()-d); return dt.toISOString(); }
+function daysDiff(iso) {
+  const d=Math.floor((Date.now()-new Date(iso))/86400000);
+  if(d===0)return'hoy'; if(d===1)return'ayer'; return d+'d';
+}
+function horasDesde(iso) { if(!iso)return 9999; return (Date.now()-new Date(iso))/3600000; }
+function estaLocked(c) { return horasDesde(c.ultimaRespuesta)<3; }
+
+let clientes = [
+  {id:1,nombre:'Fernanda Molina',tel:'+5493514445555',ig:'@fermolinaok',fuente:'instagram',etapa:'averiguacion',prio:'alta',producto:'Bifocales + armazón',monto:85000,nota:'Presupuesto vence mañana',etiquetas:['bifocal','recetado'],secuencia:{paso:1,enviados:[dAgo(2)]},ultimaRespuesta:null,lastContact:dAgo(2),created:dAgo(5)},
+  {id:2,nombre:'Sebastián Díaz',tel:'+5493510001111',ig:'@seba_d',fuente:'whatsapp',etapa:'atraccion',prio:'alta',producto:'Armazón recetado',monto:0,nota:'Sin respuesta 3 días',etiquetas:['recetado','alta gama'],secuencia:{paso:1,enviados:[dAgo(3)]},ultimaRespuesta:null,lastContact:dAgo(3),created:dAgo(4)},
+  {id:3,nombre:'Pablo García',tel:'+5493516667777',ig:'',fuente:'local',etapa:'averiguacion',prio:'alta',producto:'Lentes de contacto',monto:42000,nota:'Espera el sueldo',etiquetas:['contacto'],secuencia:{paso:0,enviados:[]},ultimaRespuesta:dAgo(1),lastContact:dAgo(2),created:dAgo(3)},
+  {id:4,nombre:'Diego Ruiz',tel:'+5493511234567',ig:'@diegoruiz',fuente:'instagram',etapa:'atencion',prio:'media',producto:'Lentes de sol',monto:0,nota:'Llegó por Instagram DM',etiquetas:['sol'],secuencia:{paso:0,enviados:[]},ultimaRespuesta:dAgo(0),lastContact:dAgo(0),created:dAgo(0)},
+  {id:5,nombre:'Camila Vega',tel:'+5493512223333',ig:'',fuente:'whatsapp',etapa:'atraccion',prio:'media',producto:'Lentes progresivos',monto:0,nota:'Interesada, respondió ayer',etiquetas:['progresivos','recetado'],secuencia:{paso:1,enviados:[dAgo(1)]},ultimaRespuesta:dAgo(0),lastContact:dAgo(1),created:dAgo(1)},
+  {id:6,nombre:'Jorge Méndez',tel:'+5493511112222',ig:'',fuente:'local',etapa:'accion',prio:'baja',producto:'Bifocales Zeiss',monto:125000,nota:'Entregado hoy',etiquetas:['alta gama','ya compró'],secuencia:{paso:0,enviados:[]},ultimaRespuesta:dAgo(0),lastContact:dAgo(0),created:dAgo(7)},
+  {id:7,nombre:'Marcela Ríos',tel:'+5493515556666',ig:'@marcerios',fuente:'instagram',etapa:'apologia',prio:'baja',producto:'Lentes de sol',monto:52000,nota:'Reseña 5 estrellas',etiquetas:['sol','embajadora'],secuencia:{paso:0,enviados:[]},ultimaRespuesta:dAgo(5),lastContact:dAgo(5),created:dAgo(30)},
+  {id:8,nombre:'Lucía Torres',tel:'+5493519876543',ig:'',fuente:'whatsapp',etapa:'atencion',prio:'baja',producto:'Control visual',monto:0,nota:'Quiere turno',etiquetas:['control visual'],secuencia:{paso:0,enviados:[]},ultimaRespuesta:null,lastContact:dAgo(0),created:dAgo(0)},
+];
+let nextId = 9;
+let currentId = null;
+
+// ═══════════════════════════════════════════
+// URGENCIA
+// ═══════════════════════════════════════════
+function getUrgencia(c) {
+  const dias = Math.floor((Date.now()-new Date(c.lastContact))/86400000);
+  if (['accion','apologia'].includes(c.etapa)) return 'ok';
+  if (c.etapa==='averiguacion' && c.monto>0 && dias>=2) return 'ahora';
+  if (dias>=3) return 'ahora';
+  if (dias>=1 && !c.ultimaRespuesta) return 'hoy';
+  return 'ok';
+}
+
+function urgenciaLabel(u) {
+  if(u==='ahora') return {text:'contactar ahora',cls:'u-ahora'};
+  if(u==='hoy') return {text:'contactar hoy',cls:'u-hoy'};
+  return {text:'al día',cls:'u-ok'};
+}
+
+// ═══════════════════════════════════════════
+// COLORES ETIQUETAS
+// ═══════════════════════════════════════════
+const PALETA=[
+  {bg:'rgba(26,107,255,0.1)',b:'rgba(26,107,255,0.3)',t:'#1a6bff'},
+  {bg:'rgba(22,163,74,0.09)',b:'rgba(22,163,74,0.3)',t:'#16a34a'},
+  {bg:'rgba(180,83,9,0.08)',b:'rgba(180,83,9,0.3)',t:'#b45309'},
+  {bg:'rgba(124,58,237,0.08)',b:'rgba(124,58,237,0.3)',t:'#7c3aed'},
+  {bg:'rgba(6,182,212,0.08)',b:'rgba(6,182,212,0.3)',t:'#0891b2'},
+  {bg:'rgba(220,38,38,0.08)',b:'rgba(220,38,38,0.3)',t:'#dc2626'},
+  {bg:'rgba(234,88,12,0.08)',b:'rgba(234,88,12,0.3)',t:'#ea580c'},
+];
+function colEtiq(t){let h=0;for(let c of t)h=(h*31+c.charCodeAt(0))%PALETA.length;return PALETA[Math.abs(h)];}
+function etiqHtml(t,rm=false,idx=null){
+  const c=colEtiq(t);
+  const x=rm?`<span class="etiq-rm" onclick="quitarEtiqueta(${idx})">✕</span>`:'';
+  return `<span class="etiq" style="background:${c.bg};border-color:${c.b};color:${c.t}">${t}${x}</span>`;
+}
+function etiqCard(t){
+  const c=colEtiq(t);
+  return `<span class="etiqueta-chip" style="background:${c.bg};border-color:${c.b};color:${c.t};font-size:10px;padding:2px 7px;border-radius:20px;border:1px solid">${t}</span>`;
+}
+
+// ═══════════════════════════════════════════
+// MENSAJES
+// ═══════════════════════════════════════════
+const PLANTILLAS = {
+  atencion:{
+    default:[
+      c=>`Hola ${c.nombre} 👋 Somos Óptica [nombre]. ¿Buscás lentes de sol, de vista, o querés un control visual?`,
+      c=>`Hola ${c.nombre}! ¿Pudiste ver lo que te enviamos? Estamos para ayudarte 😊`,
+    ],
+    sol:[c=>`Hola ${c.nombre} 😎 Tenemos una colección increíble de lentes de sol. ¿Querés que te mostremos opciones?`],
+    recetado:[c=>`Hola ${c.nombre} 👓 Para lentes recetados lo primero es un buen control visual. ¿Tenés tu graduación actualizada?`],
+    contacto:[c=>`Hola ${c.nombre}! Trabajamos con Acuvue, Bausch y Alcon. ¿Sabés tu graduación actual?`],
+  },
+  atraccion:{
+    default:[
+      c=>`Hola ${c.nombre}, te seguimos desde Óptica [nombre]. ¿Alguna duda sobre lo que te mostramos? 😊`,
+      c=>`${c.nombre}, un saludo! Si querés ver opciones o comparar precios, estamos acá 👓`,
+    ],
+    'alta gama':[c=>`${c.nombre}, trabajamos con Zeiss y Essilor — los mejores cristales del mercado. ¿Querés más info?`],
+    'ya compró':[c=>`Hola ${c.nombre}! ¿Cómo te van los lentes? Cualquier ajuste pasá sin turno, sin cargo 😊`],
+  },
+  averiguacion:{
+    default:[
+      c=>`Hola ${c.nombre} 👓 ¿Cómo seguís con el presupuesto de ${c.producto||'los lentes'}${c.monto?' ($'+Number(c.monto).toLocaleString('es-AR')+')':''}? ¿Alguna duda?`,
+      c=>`${c.nombre}, ¿pudiste evaluarlo? A veces hay opciones intermedias que no mostramos al principio 😊`,
+      c=>`Último mensaje ${c.nombre} — si en algún momento retomás el tema, nos encontrás acá. ¡Buen día!`,
+    ],
+    bifocal:[c=>`${c.nombre}, los bifocales tienen un período de adaptación. Muchos clientes dudan por eso — ¿querés que te contemos cómo es?`],
+    contacto:[c=>`${c.nombre}, el presupuesto incluye prueba gratuita. Podés venir a probarlos sin compromiso.`],
+  },
+  accion:{
+    default:[
+      c=>`¡Perfecto ${c.nombre}! Tu pedido está en proceso 🙌 Te avisamos cuando esté listo. ¡Gracias!`,
+      c=>`${c.nombre}, ¿cómo te están yendo los lentes? Si necesitás ajuste pasá sin turno, sin cargo 😊`,
+    ],
+  },
+  apologia:{
+    default:[
+      c=>`Hola ${c.nombre}! Si quedaste contento/a, ¿podés dejarnos una reseña en Google? ⭐ [link] ¡Gracias!`,
+      c=>`${c.nombre}, acordate que hacemos limpieza de armazones sin cargo. ¡Cuando quieras pasate! 😊`,
+    ],
+    embajadora:[c=>`${c.nombre}, sos una de nuestras mejores clientas! Si recomendás a alguien tienen 10% off en su próxima compra 🎁`],
+  },
+};
+
+function getMsgPaso(c, paso) {
+  const g=PLANTILLAS[c.etapa]; if(!g) return '';
+  const tags=(c.etiquetas||[]).map(t=>t.toLowerCase());
+  for(const tag of tags){
+    for(const key of Object.keys(g)){
+      if(key!=='default'&&(tag===key||tag.includes(key)||key.includes(tag))){
+        if(g[key][paso]) return g[key][paso](c);
+        if(g[key][0]) return g[key][0](c);
+      }
+    }
+  }
+  const def=g.default||[];
+  return def[Math.min(paso,def.length-1)]?.(c)||'';
+}
+
+function getTotalPasos(c){
+  const g=PLANTILLAS[c.etapa]; if(!g) return 1;
+  const tags=(c.etiquetas||[]).map(t=>t.toLowerCase());
+  for(const tag of tags){
+    for(const key of Object.keys(g)){
+      if(key!=='default'&&(tag===key||tag.includes(key)||key.includes(tag))&&g[key].length) return g[key].length;
+    }
+  }
+  return (g.default||[]).length||1;
+}
+
+function getEstadoSeq(c){
+  const total=getTotalPasos(c), paso=c.secuencia?.paso||0;
+  const dias=Math.floor((Date.now()-new Date(c.lastContact))/86400000);
+  if(dias>=7&&!c.ultimaRespuesta&&paso>0) return 'frio';
+  if(paso>=total) return ['accion','apologia'].includes(c.etapa)?'completa':'frio';
+  if(paso===0) return 'pendiente';
+  return 'en_curso';
+}
+
+function getSugerencia(c){
+  const dias=Math.floor((Date.now()-new Date(c.lastContact))/86400000);
+  const paso=c.secuencia?.paso||0;
+  if(!c.ultimaRespuesta&&dias>=5) return '72hs — no respondió, espaciá más';
+  if(c.ultimaRespuesta&&dias<=1) return '24hs — respondió recientemente, buen momento';
+  if(paso===0) return '48hs — primer seguimiento estándar';
+  if(paso>=2) return '96hs — último intento antes de marcar frío';
+  return '48hs';
+}
+
+// ═══════════════════════════════════════════
+// ESTADÍSTICAS DIARIAS
+// ═══════════════════════════════════════════
+function updateStats(){
+  const hoy=new Date(); hoy.setHours(0,0,0,0);
+  const contactarHoy=clientes.filter(c=>['ahora','hoy'].includes(getUrgencia(c))).length;
+  const respondieron=clientes.filter(c=>c.ultimaRespuesta&&new Date(c.ultimaRespuesta)>=hoy).length;
+  const nuevos=clientes.filter(c=>new Date(c.created)>=hoy).length;
+  document.getElementById('dsContactar').textContent=contactarHoy;
+  document.getElementById('dsRespondieron').textContent=respondieron;
+  document.getElementById('dsNuevos').textContent=nuevos;
+  document.getElementById('dsTotal').textContent=clientes.length;
+}
+
+// ═══════════════════════════════════════════
+// VISTAS
+// ═══════════════════════════════════════════
+let vistaActual = 'hoy';
+
+function setView(v, btn){
+  vistaActual = v;
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function render(){
+  updateStats();
+  const el = document.getElementById('mainContent');
+  if(vistaActual==='hoy') el.innerHTML = renderHoy();
+  else if(vistaActual==='todos') el.innerHTML = renderTodos();
+  else if(vistaActual==='tablero') el.innerHTML = renderTablero();
+  else if(vistaActual==='resumen') el.innerHTML = renderResumen();
+  bindWorkItems();
+}
+
+// ── HOY ──
+function renderHoy(){
+  const urgentes = clientes.filter(c=>getUrgencia(c)==='ahora').sort((a,b)=>new Date(a.lastContact)-new Date(b.lastContact));
+  const manana = clientes.filter(c=>getUrgencia(c)==='hoy');
+  const alDia = clientes.filter(c=>getUrgencia(c)==='ok'&&!['apologia'].includes(c.etapa));
+
+  let html='';
+  if(urgentes.length){
+    html+=`<div class="section-header"><span class="section-label">Contactar ahora</span><span class="section-count">${urgentes.length}</span></div>`;
+    html+=`<div class="work-list">${urgentes.map(c=>workItemHtml(c)).join('')}</div>`;
+  }
+  if(manana.length){
+    html+=`<div class="section-header"><span class="section-label">Seguimiento hoy</span><span class="section-count">${manana.length}</span></div>`;
+    html+=`<div class="work-list">${manana.map(c=>workItemHtml(c)).join('')}</div>`;
+  }
+  if(alDia.length){
+    html+=`<div class="section-header"><span class="section-label">Al día</span><span class="section-count">${alDia.length}</span></div>`;
+    html+=`<div class="work-list">${alDia.map(c=>workItemHtml(c)).join('')}</div>`;
+  }
+  if(!urgentes.length&&!manana.length&&!alDia.length){
+    html=`<div class="empty"><div class="empty-icon">🎉</div><div class="empty-text">Todo al día. Sin pendientes.</div></div>`;
+  }
+  return html;
+}
+
+// ── TODOS ──
+function renderTodos(){
+  const sorted=[...clientes].sort((a,b)=>{
+    const ord={ahora:0,hoy:1,ok:2};
+    return (ord[getUrgencia(a)]||2)-(ord[getUrgencia(b)]||2);
+  });
+  return `<div class="section-header"><span class="section-label">Todos los clientes</span><span class="section-count">${sorted.length}</span></div>
+  <div class="work-list">${sorted.map(c=>workItemHtml(c,'mini')).join('')}</div>`;
+}
+
+// ── WORK ITEM ──
+function workItemHtml(c, mode='full'){
+  const u=getUrgencia(c);
+  const ul=urgenciaLabel(u);
+  const ul_cls=u==='ahora'?'urgente':u==='hoy'?'manana':'';
+  const etapa_labels={atencion:'Atención',atraccion:'Atracción',averiguacion:'Averiguación',accion:'Acción',apologia:'Apología'};
+  const fuente_icons={whatsapp:'💬',instagram:'📸',local:'🏪',formulario:'🌐',referido:'🤝'};
+  const etiquetas=(c.etiquetas||[]).slice(0,3).map(t=>etiqCard(t)).join('');
+  const monto=c.monto>0?`<span style="font-size:11px;font-weight:600;color:var(--green);font-family:'Geist Mono',monospace">$${Number(c.monto).toLocaleString('es-AR')}</span>`:'';
+
+  const quickActions = mode==='full' ? `
+    <div class="quick-actions">
+      <button class="qa-btn wa" onclick="event.stopPropagation();enviarWA('${c.id}')">📱 WhatsApp</button>
+      <button class="qa-btn listo" onclick="event.stopPropagation();marcarRespondio('${c.id}')">✅ Respondió</button>
+      <button class="qa-btn norsp" onclick="event.stopPropagation();marcarNoResponde('${c.id}')">⏭ No resp.</button>
+    </div>` : '';
+
+  return `<div class="work-item ${ul_cls}" data-id="${c.id}">
+    <div class="item-row1">
+      <div class="item-nombre">${fuente_icons[c.fuente]||'👤'} ${c.nombre}</div>
+      <span class="urgencia-chip ${ul.cls}">${ul.text}</span>
+    </div>
+    <div class="item-row2">
+      <span class="item-sub">${c.producto||'Sin producto'}</span>
+      ${c.monto>0?`<span class="item-dot">·</span>${monto}`:''}
+      <span class="item-dot">·</span>
+      <span class="item-sub">${daysDiff(c.lastContact)}</span>
+    </div>
+    <div class="item-row3">
+      <span class="etapa-chip">${etapa_labels[c.etapa]||c.etapa}</span>
+      ${etiquetas}
+    </div>
+    ${quickActions}
+  </div>`;
+}
+
+function bindWorkItems(){
+  document.querySelectorAll('.work-item').forEach(el=>{
+    el.addEventListener('click', function(){
+      const id=this.dataset.id;
+      if(id) openDetail(id);
+    });
+  });
+}
+
+// ── TABLERO ──
+function renderTablero(){
+  const etapas=[
+    {id:'atencion',label:'Atención',color:'#6b6860'},
+    {id:'atraccion',label:'Atracción',color:'#1a6bff'},
+    {id:'averiguacion',label:'Averiguación',color:'#7c3aed'},
+    {id:'accion',label:'Acción',color:'#16a34a'},
+    {id:'apologia',label:'Apología',color:'#b45309'},
+  ];
+  let html=`<div class="kanban-wrap"><div class="kanban-board">`;
+  etapas.forEach(e=>{
+    const lista=clientes.filter(c=>c.etapa===e.id);
+    const cards=lista.map(c=>`
+      <div class="k-card" data-id="${c.id}">
+        <div class="k-card-name">${c.nombre}</div>
+        <div class="k-card-sub">${c.producto||'Sin producto'} ${c.monto>0?'· $'+Number(c.monto).toLocaleString('es-AR'):''}</div>
+      </div>`).join('');
+    html+=`<div class="k-col">
+      <div class="k-col-head">
+        <div class="k-col-dot" style="background:${e.color}"></div>
+        <span class="k-col-title">${e.label}</span>
+        <span class="k-col-count">${lista.length}</span>
+      </div>
+      <div class="k-col-body">${cards}<div class="k-add" onclick="openAddModal('${e.id}')">+ Agregar</div></div>
+    </div>`;
+  });
+  html+=`</div></div>`;
+  return html;
+}
+
+// ── RESUMEN ──
+function renderResumen(){
+  const hoy=new Date(); hoy.setHours(0,0,0,0);
+  const semana=new Date(); semana.setDate(semana.getDate()-7);
+  const leads7=clientes.filter(c=>new Date(c.created)>=semana).length;
+  const accion=clientes.filter(c=>['accion','apologia'].includes(c.etapa)).length;
+  const monto=clientes.filter(c=>c.etapa==='averiguacion'&&c.monto>0).reduce((s,c)=>s+c.monto,0);
+  const conversion=clientes.length?Math.round((accion/clientes.length)*100):0;
+
+  return `<div class="resumen-wrap">
+    <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--text3);margin-bottom:12px">Últimos 7 días</div>
+    <div class="resumen-grid">
+      <div class="resumen-card">
+        <div class="resumen-num" style="color:var(--accent)">${leads7}</div>
+        <div class="resumen-label">Leads nuevos</div>
+      </div>
+      <div class="resumen-card">
+        <div class="resumen-num" style="color:var(--green)">${accion}</div>
+        <div class="resumen-label">Compraron</div>
+      </div>
+      <div class="resumen-card">
+        <div class="resumen-num" style="color:var(--amber)">${conversion}%</div>
+        <div class="resumen-label">Conversión total</div>
+      </div>
+      <div class="resumen-card">
+        <div class="resumen-num" style="color:var(--purple);font-size:22px">$${(monto/1000).toFixed(0)}k</div>
+        <div class="resumen-label">En averiguación</div>
+      </div>
+    </div>
+    <div style="margin-top:16px">
+      <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--text3);margin-bottom:10px">Por etapa</div>
+      ${['atencion','atraccion','averiguacion','accion','apologia'].map(e=>{
+        const n=clientes.filter(c=>c.etapa===e).length;
+        const pct=clientes.length?Math.round((n/clientes.length)*100):0;
+        const labels={atencion:'Atención',atraccion:'Atracción',averiguacion:'Averiguación',accion:'Acción',apologia:'Apología'};
+        const colors={atencion:'#6b6860',atraccion:'#1a6bff',averiguacion:'#7c3aed',accion:'#16a34a',apologia:'#b45309'};
+        return `<div style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+            <span>${labels[e]}</span><span style="font-weight:500;font-family:'Geist Mono',monospace">${n}</span>
+          </div>
+          <div style="height:5px;background:var(--surface2);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${pct}%;background:${colors[e]};border-radius:3px;transition:width 0.4s ease"></div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    <button class="btn" style="width:100%;justify-content:center;margin-top:12px" onclick="exportarCSV()">⬇ Exportar Excel</button>
+  </div>`;
+}
+
+// ── BÚSQUEDA ──
+function openSearch(){
+  document.getElementById('searchInput').value='';
+  document.getElementById('searchResults').innerHTML='';
+  document.getElementById('searchModal').classList.add('open');
+  setTimeout(()=>document.getElementById('searchInput').focus(),300);
+}
+
+function renderSearch(){
+  const q=document.getElementById('searchInput').value.trim().toLowerCase();
+  const el=document.getElementById('searchResults');
+  if(!q){el.innerHTML='';return;}
+  const res=clientes.filter(c=>
+    c.nombre.toLowerCase().includes(q)||
+    (c.producto||'').toLowerCase().includes(q)||
+    (c.etiquetas||[]).some(t=>t.includes(q))
+  ).slice(0,8);
+  if(!res.length){el.innerHTML=`<div class="empty" style="padding:20px"><div class="empty-text">Sin resultados</div></div>`;return;}
+  el.innerHTML=`<div style="display:flex;flex-direction:column;gap:6px">${res.map(c=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="closeModal('searchModal');openDetail('${c.id}')">
+      <div style="flex:1">
+        <div style="font-size:15px;font-weight:500">${c.nombre}</div>
+        <div style="font-size:12px;color:var(--text2)">${c.producto||'Sin producto'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+        <span class="urgencia-chip ${urgenciaLabel(getUrgencia(c)).cls}">${urgenciaLabel(getUrgencia(c)).text}</span>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+// ═══════════════════════════════════════════
+// DETALLE
+// ═══════════════════════════════════════════
+function openDetail(id){
+  currentId = String(id);
+  const c=clientes.find(x=>String(x.id)===String(id));
+  if(!c) return;
+
+  document.getElementById('d_nombre').textContent = c.nombre;
+
+  // Etapa pills
+  ['atencion','atraccion','averiguacion','accion','apologia'].forEach(e=>{
+    document.getElementById('ep-'+e).classList.toggle('active', e===c.etapa);
+  });
+
+  // Lock banner
+  const lb=document.getElementById('d_lockbanner');
+  const h=horasDesde(c.ultimaRespuesta);
+  if(estaLocked(c)){
+    const mins=Math.round(h*60);
+    lb.innerHTML=`<div class="lock-banner">🔒 Respondió hace ${mins<60?mins+'min':Math.round(h)+'hs'}. Mensajes pausados ${Math.ceil(3-h)}hs más.</div>`;
+  } else if(c.ultimaRespuesta){
+    lb.innerHTML=`<div class="lock-banner" style="background:var(--surface2);border-color:var(--border);color:var(--text2)">💬 Última respuesta hace ${h<24?Math.round(h)+'hs':Math.round(h/24)+'d'}.</div>`;
+  } else { lb.innerHTML=''; }
+
+  // Etiquetas
+  renderEtiqDetalle(c);
+
+  // Secuencia
+  renderSeqDetalle(c);
+
+  // Info
+  const fuente_labels={whatsapp:'WhatsApp',instagram:'Instagram',local:'Local físico',formulario:'Formulario web',referido:'Referido'};
+  document.getElementById('d_info').innerHTML=`
+    <div class="detail-row"><span class="dk">WhatsApp</span><span class="dv">${c.tel||'—'}</span></div>
+    <div class="detail-row"><span class="dk">Instagram</span><span class="dv">${c.ig||'—'}</span></div>
+    <div class="detail-row"><span class="dk">Fuente</span><span class="dv">${fuente_labels[c.fuente]||c.fuente}</span></div>
+    <div class="detail-row"><span class="dk">Producto</span><span class="dv">${c.producto||'—'}</span></div>
+    <div class="detail-row"><span class="dk">Presupuesto</span><span class="dv">${c.monto?'$'+Number(c.monto).toLocaleString('es-AR'):'—'}</span></div>
+    <div class="detail-row"><span class="dk">Nota</span><span class="dv" style="max-width:200px;text-align:right;font-size:13px;color:var(--text2);font-weight:400">${c.nota||'—'}</span></div>
+  `;
+
+  // Historial
+  document.getElementById('d_historial').innerHTML=`
+    <div class="history-item"><div class="h-dot" style="background:var(--green)"></div><div><div class="h-text">Alta en el sistema · ${c.fuente}</div><div class="h-time">${new Date(c.created).toLocaleString('es-AR')}</div></div></div>
+    <div class="history-item"><div class="h-dot" style="background:var(--accent)"></div><div><div class="h-text">Último contacto registrado</div><div class="h-time">${new Date(c.lastContact).toLocaleString('es-AR')}</div></div></div>
+    ${c.ultimaRespuesta?`<div class="history-item"><div class="h-dot" style="background:var(--green)"></div><div><div class="h-text">✅ Última respuesta del cliente</div><div class="h-time">${new Date(c.ultimaRespuesta).toLocaleString('es-AR')}</div></div></div>`:''}
+    ${c.monto?`<div class="history-item"><div class="h-dot" style="background:var(--purple)"></div><div><div class="h-text">Presupuesto $${Number(c.monto).toLocaleString('es-AR')}</div><div class="h-time">registrado</div></div></div>`:''}
+  `;
+
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function renderEtiqDetalle(c){
+  const el=document.getElementById('d_etiquetas');
+  if(!el) return;
+  el.innerHTML=(c.etiquetas||[]).map((t,i)=>etiqHtml(t,true,i)).join('')||'<span style="font-size:13px;color:var(--text3)">Sin etiquetas</span>';
+}
+
+function renderSeqDetalle(c){
+  const wrap=document.getElementById('d_secuencia');
+  const estadoEl=document.getElementById('d_seq_estado');
+  if(!wrap) return;
+  const total=getTotalPasos(c), paso=c.secuencia?.paso||0;
+  const estado=getEstadoSeq(c);
+  const sug=getSugerencia(c);
+
+  if(estadoEl){
+    if(estado==='frio') estadoEl.innerHTML='<span class="seq-status ss-frio">frío</span>';
+    else if(estado==='completa') estadoEl.innerHTML='<span class="seq-status ss-sent">completa</span>';
+    else estadoEl.innerHTML=`<span class="seq-status ss-next">paso ${paso+1}/${total}</span>`;
+  }
+
+  let html='';
+  for(let i=0;i<total;i++){
+    const msg=getMsgPaso(c,i);
+    const enviado=i<paso, esCurrent=i===paso, esFut=i>paso;
+    let st='';
+    if(enviado) st='<span class="seq-status ss-sent">✓ enviado</span>';
+    else if(esCurrent&&estado!=='frio') st='<span class="seq-status ss-next">→ siguiente</span>';
+    else if(estado==='frio'&&esCurrent) st='<span class="seq-status ss-frio">pausado</span>';
+    else st='<span class="seq-status ss-pending">pendiente</span>';
+
+    const sugHtml=esCurrent&&estado!=='frio'?`<div class="seq-suggestion">⏱ Sugerido: ${sug}</div>`:'';
+    const btns=esCurrent&&estado!=='frio'?`<div class="seq-actions">
+      <button class="seq-btn seq-btn-wa" onclick="enviarWAcon(${i})">📱 WhatsApp</button>
+      <button class="seq-btn seq-btn-copy" onclick="copiarMsg(${i})">Copiar</button>
+    </div>`:'';
+
+    html+=`<div class="seq-item" style="opacity:${esFut?0.5:1}">
+      <div class="seq-header"><span class="seq-num">Mensaje ${i+1}</span>${st}</div>
+      <div class="seq-msg">${msg}</div>
+      ${sugHtml}${btns}
+    </div>`;
+  }
+  if(paso>0) html+=`<div style="text-align:right;margin-top:4px"><button class="btn" style="font-size:12px;padding:6px 12px;color:var(--text3)" onclick="resetSeq()">↺ Reiniciar</button></div>`;
+  wrap.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════
+// ACCIONES
+// ═══════════════════════════════════════════
+async function moverEtapa(etapa){
+  const c=clientes.find(x=>String(x.id)===String(currentId));
+  if(!c) return;
+  c.etapa=etapa; c.secuencia={paso:0,enviados:[]}; c.lastContact=new Date().toISOString();
+  ['atencion','atraccion','averiguacion','accion','apologia'].forEach(e=>{
+    document.getElementById('ep-'+e).classList.toggle('active', e===etapa);
+  });
+  renderSeqDetalle(c);
+  await guardarSB(c); render();
+}
+
+async function enviarWA(id){
+  const c=clientes.find(x=>String(x.id)===String(id));
+  if(!c||!c.tel){toast('Sin número de WhatsApp'); return;}
+  if(estaLocked(c)&&!confirm('Respondió hace menos de 3hs. ¿Enviás igual?')) return;
+  const paso=c.secuencia?.paso||0;
+  const msg=encodeURIComponent(getMsgPaso(c,paso));
+  window.open(`https://wa.me/${c.tel.replace(/\D/g,'')}?text=${msg}`,'_blank');
+  if(!c.secuencia) c.secuencia={paso:0,enviados:[]};
+  c.secuencia.enviados.push(new Date().toISOString());
+  c.secuencia.paso=paso+1;
+  c.lastContact=new Date().toISOString();
+  await guardarSB(c); render();
+  toast(`Mensaje ${paso+1} enviado a ${c.nombre}`);
+}
+
+async function enviarWAcon(paso){
+  const c=clientes.find(x=>String(x.id)===String(currentId));
+  if(!c||!c.tel){toast('Sin número de WhatsApp'); return;}
+  if(estaLocked(c)&&!confirm('Respondió hace menos de 3hs. ¿Enviás igual?')) return;
+  const msg=encodeURIComponent(getMsgPaso(c,paso));
+  window.open(`https://wa.me/${c.tel.replace(/\D/g,'')}?text=${msg}`,'_blank');
+  if(!c.secuencia) c.secuencia={paso:0,enviados:[]};
+  c.secuencia.enviados.push(new Date().toISOString());
+  c.secuencia.paso=Math.max(c.secuencia.paso,paso+1);
+  c.lastContact=new Date().toISOString();
+  await guardarSB(c); renderSeqDetalle(c); render();
+  toast(`Mensaje ${paso+1} enviado`);
+}
+
+function copiarMsg(paso){
+  const c=clientes.find(x=>String(x.id)===String(currentId));
+  if(!c) return;
+  navigator.clipboard.writeText(getMsgPaso(c,paso)).then(()=>toast('Copiado'));
+}
+
+async function registrarRespuesta(){
+  const c=clientes.find(x=>String(x.id)===String(currentId));
+  if(!c) return;
+  c.ultimaRespuesta=new Date().toISOString(); c.lastContact=new Date().toISOString();
+  openDetail(currentId); await guardarSB(c); render();
+  toast('Respuesta registrada ✅');
+}
+
+async function registrarEnvio(){
+  const c=clientes.find(x=>String(x.id)===String(currentId));
+  if(!c) return;
+  c.lastContact=new Date().toISOString();
+  await guardarSB(c); render();
+  toast('Envío registrado');
+}
+
+async function marcarRespondio(id){
+  const c=clientes.find(x=>String(x.id)===String(id));
+  if(!c) return;
+  c.ultimaRespuesta=new Date().toISOString(); c.lastContact=new Date().toISOString();
+  await guardarSB(c); render();
+  toast(`${c.nombre} — respuesta registrada ✅`);
+}
+
+async function marcarNoResponde(id){
+  const c=clientes.find(x=>String(x.id)===String(id));
+  if(!c) return;
+  if(!c.secuencia) c.secuencia={paso:0,enviados:[]};
+  c.secuencia.paso=Math.min(c.secuencia.paso+1, getTotalPasos(c));
+  c.lastContact=new Date().toISOString();
+  await guardarSB(c); render();
+  toast(`${c.nombre} — avanzado a mensaje ${c.secuencia.paso}`);
+}
+
+async function resetSeq(){
+  const c=clientes.find(x=>String(x.id)===String(currentId));
+  if(!c) return;
+  c.secuencia={paso:0,enviados:[]};
+  await guardarSB(c); renderSeqDetalle(c); render();
+}
+
+async function eliminarCliente(){
+  if(!confirm('¿Eliminar este cliente?')) return;
+  await eliminarSB(currentId);
+  clientes=clientes.filter(x=>String(x.id)!==String(currentId));
+  closeModal('detailModal'); render();
+  toast('Cliente eliminado');
+}
+
+// ── ETIQUETAS ──
+async function agregarEtiqueta(){
+  const input=document.getElementById('etiqInput');
+  const val=input.value.trim().toLowerCase();
+  if(!val) return;
+  const c=clientes.find(x=>String(x.id)===String(currentId));
+  if(!c) return;
+  if(!c.etiquetas) c.etiquetas=[];
+  if(!c.etiquetas.includes(val)) c.etiquetas.push(val);
+  input.value='';
+  renderEtiqDetalle(c); renderSeqDetalle(c);
+  await guardarSB(c); render();
+}
+
+async function quitarEtiqueta(idx){
+  const c=clientes.find(x=>String(x.id)===String(currentId));
+  if(!c||!c.etiquetas) return;
+  c.etiquetas.splice(idx,1);
+  renderEtiqDetalle(c); renderSeqDetalle(c);
+  await guardarSB(c); render();
+}
+
+// ── NUEVO CLIENTE ──
+function openAddModal(etapa='atencion'){
+  document.getElementById('f_etapa').value=etapa;
+  ['f_nombre','f_tel','f_ig','f_producto','f_nota'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f_monto').value='';
+  document.getElementById('f_fuente').value='whatsapp';
+  document.getElementById('addModal').classList.add('open');
+}
+
+async function guardarCliente(){
+  const nombre=document.getElementById('f_nombre').value.trim();
+  if(!nombre){toast('El nombre es obligatorio'); return;}
+  const c={
+    id:nextId++, nombre,
+    tel:document.getElementById('f_tel').value.trim(),
+    ig:document.getElementById('f_ig').value.trim(),
+    fuente:document.getElementById('f_fuente').value,
+    etapa:document.getElementById('f_etapa').value,
+    prio:'media',
+    producto:document.getElementById('f_producto').value.trim(),
+    monto:Number(document.getElementById('f_monto').value)||0,
+    nota:document.getElementById('f_nota').value.trim(),
+    etiquetas:[], secuencia:{paso:0,enviados:[]},
+    ultimaRespuesta:null,
+    lastContact:new Date().toISOString(),
+    created:new Date().toISOString(),
+  };
+  clientes.unshift(c);
+  await guardarSB(c);
+  closeModal('addModal'); render();
+  toast(`${c.nombre} agregado ✅`);
+}
+
+// ── CONFIG ──
+function openConfig(){
+  cargarConfig();
+  document.getElementById('configModal').classList.add('open');
+}
+
+// ── EXPORTAR ──
+function exportarCSV(){
+  const h=['Nombre','Teléfono','Instagram','Fuente','Etapa','Producto','Presupuesto','Etiquetas','Nota','Última Respuesta','Último Contacto','Alta'];
+  const rows=clientes.map(c=>[
+    c.nombre,c.tel||'',c.ig||'',c.fuente,c.etapa,c.producto||'',c.monto||0,
+    (c.etiquetas||[]).join(' / '),
+    (c.nota||'').replace(/,/g,' '),
+    c.ultimaRespuesta?new Date(c.ultimaRespuesta).toLocaleString('es-AR'):'',
+    new Date(c.lastContact).toLocaleString('es-AR'),
+    new Date(c.created).toLocaleString('es-AR'),
+  ]);
+  const csv='\uFEFF'+[h,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.download=`optica-crm-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ── TOAST ──
+function toast(msg){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div');
+  t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity 0.3s';setTimeout(()=>t.remove(),300);},2500);
+}
+
+// ── MODALS ──
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el=>{
+  el.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+});
+
+// ── INIT ──
+render();
+if(cfg.url&&cfg.key){
+  cargarDesdeSupabase().then(()=>iniciarPolling());
+}
+</script>
+</body>
+</html>
